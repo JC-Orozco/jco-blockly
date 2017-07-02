@@ -24,6 +24,7 @@
   <script src="block_exporter_tools.js"></script>
   <script src="block_exporter_view.js"></script>
   <script src="block_exporter_controller.js"></script>
+  <script src="code_to_block_xml.js"></script>
   <script src="blocks.js"></script>
   <script src="app_controller.js"></script>
   <script src="/storage.js"></script>
@@ -294,6 +295,15 @@
               <select id="blockLibraryDropdown" style="display:none">
               </select>
             </span>
+            </td>
+            <td>
+              <button id="factoryBlocksXml" onclick="jco_factoryBlocksXml()">Factory XML</button>
+            </td>
+            <td>
+              <button id="previewBlockXml" onclick="jco_previewBlockXml()">Preview XML</button>
+            </td>
+            <td>
+              <button id="toolbarBlocksXml" onclick="jco_toolbarBlocksXml()">Toolbar XML</button>
             </td>
             <td id="blockLibraryControls">
             <button id="saveToBlockLibraryButton" title="Save block to Block Library.">
