@@ -157,7 +157,7 @@ var convertXmlToCode = function(xml){
   }
   parameters = parameters.slice(0,-2)
   //console.log(childList)
-  var code = 'var '+blockType+'_xml('+parameters+') {\n'
+  var code = 'var '+blockType+'_xml = function('+parameters+') {\n'
   code += "  var base_block\n"
   code += "  var block1 = newNode('block', {type: '" + blockType +"'})\n"
   // JCO TODO: The next code applies for statements, needs expression case.
