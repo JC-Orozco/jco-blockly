@@ -239,11 +239,32 @@ var buildBlockFactoryDef = function(block){
 //  factory_base_xml(data, connections, NAME, INLINE, CONNECTIONS, INPUTS, TOOLTIP, HELPURL, COLOUR)
 
   let colour_hue = Math.floor(goog.color.hexToHsv(data.src.current.colour_)[0]); // Convert to hue value 0-360 degrees
-  
+  let inline = 'AUTO' // When block.inputsInlineDefault === undefined
+  if(block.inputsInlineDefault === true){
+    inline = 'INT'
+  } else if(block.inputsInlineDefault === false){
+    inline = 'EXT'
+  }   
+  let connections = 'NONE'
+  if(block.outputConnection){
+    connections = 'LEFT'
+  } else {
+    if(block.prevConnection && block.nextConnection){
+      connections = 'BOTH'
+    } else {
+      if(block.prevConnection){
+        connections = 'TOP'
+      }
+      if(block.nextConnection){
+        connections = 'BOTTOM'
+      }
+    }
+  }
+  //block.nextConnection null
   factory_base_xml(data, connections,
     block.type, //NAME
-    block.inputsInline, //INLINE
-    block.inputsInlineDefault, //CONNECTIONS
+    inline, //INLINE
+    connections, //CONNECTIONS
     function(data){
       let src = data.src.current
       data.src.current = data.src.current.inputList
