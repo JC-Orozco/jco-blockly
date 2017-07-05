@@ -71,9 +71,9 @@ var newNode = function(name, attrs, text){
   if(text) block1.append(text);
   return block1;
 };
-    
+
 var firstStatement = function(block){
-  return !(block.children.length>0 && block.lastElementChild.tagName === 'STATEMENT')
+  return (block.tagName === 'STATEMENT' || block.tagName === 'XML' || block.tagName === 'VALUE')
 }
 
 //<xml xmlns="http://www.w3.org/1999/xhtml">
@@ -167,7 +167,7 @@ var parseInputs = function(data){
   for(let i=0; i<data.src.current.length; i++){
     let input = data.src.current[i]
     let align = 'LEFT' // This seems to be the default Blockly.ALIGN_LEFT
-    if(input.align){
+    if(input.align || input.align === 0){
       if(input.align === Blockly.ALIGN_CENTRE){
         align = 'CENTRE'
       } else if(input.align === Blockly.ALIGN_RIGHT){

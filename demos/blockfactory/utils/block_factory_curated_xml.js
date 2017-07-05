@@ -185,7 +185,8 @@ var convertXmlToCode = function(xml){
       case 'statement':
       case 'value':
         code += "  block1.append(data.dst.current = newNode('"+ child[0] +"', {name: '"+ child[1] +"'}))\n"
-        code += "  "+ child[1] +"(data)\n"
+        code += "  "+ child[1] +"(data)\n"+
+                "data.dst.current = block1\n"
         break;
     }
   }

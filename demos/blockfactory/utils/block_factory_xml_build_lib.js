@@ -14,12 +14,16 @@ var factory_base_xml = function(data, connections, NAME, INLINE, CONNECTIONS, IN
   block1.append(newNode('field', {name: 'CONNECTIONS'}, CONNECTIONS))
   block1.append(data.dst.current = newNode('statement', {name: 'INPUTS'}))
   INPUTS(data)
+data.dst.current = block1
   block1.append(data.dst.current = newNode('value', {name: 'TOOLTIP'}))
   TOOLTIP(data)
+data.dst.current = block1
   block1.append(data.dst.current = newNode('value', {name: 'HELPURL'}))
   HELPURL(data)
+data.dst.current = block1
   block1.append(data.dst.current = newNode('value', {name: 'COLOUR'}))
   COLOUR(data)
+data.dst.current = block1
   return 0
 }
 var input_dummy_xml = function(data, ALIGN, FIELDS) {
@@ -35,6 +39,7 @@ var input_dummy_xml = function(data, ALIGN, FIELDS) {
   block1.append(newNode('field', {name: 'ALIGN'}, ALIGN))
   block1.append(data.dst.current = newNode('statement', {name: 'FIELDS'}))
   FIELDS(data)
+data.dst.current = block1
   return 0
 }
 var input_statement_xml = function(data, INPUTNAME, ALIGN, FIELDS, TYPE) {
@@ -51,8 +56,10 @@ var input_statement_xml = function(data, INPUTNAME, ALIGN, FIELDS, TYPE) {
   block1.append(newNode('field', {name: 'ALIGN'}, ALIGN))
   block1.append(data.dst.current = newNode('statement', {name: 'FIELDS'}))
   FIELDS(data)
+data.dst.current = block1
   block1.append(data.dst.current = newNode('value', {name: 'TYPE'}))
   TYPE(data)
+data.dst.current = block1
   return 0
 }
 var input_value_xml = function(data, INPUTNAME, ALIGN, FIELDS, TYPE) {
@@ -69,8 +76,10 @@ var input_value_xml = function(data, INPUTNAME, ALIGN, FIELDS, TYPE) {
   block1.append(newNode('field', {name: 'ALIGN'}, ALIGN))
   block1.append(data.dst.current = newNode('statement', {name: 'FIELDS'}))
   FIELDS(data)
+data.dst.current = block1
   block1.append(data.dst.current = newNode('value', {name: 'TYPE'}))
   TYPE(data)
+data.dst.current = block1
   return 0
 }
 var field_static_xml = function(data, TEXT) {
@@ -322,4 +331,4 @@ var text_xml = function(data, TEXT) {
   block1.append(newNode('field', {name: 'TEXT'}, TEXT))
   return 0
 }
-//  block_factory_curated_xml.js:205:3
+//  block_factory_curated_xml.js:206:3
