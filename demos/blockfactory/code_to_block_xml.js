@@ -16,6 +16,16 @@
 ////jco_init();
 //
 
+window.jco_updateFactoryBlocks = function(){
+  if (document.getElementById('format').value == 'Manual') {
+    BlockFactory.mainWorkspace.clear();
+    // var xml = Blockly.Xml.textToDom();
+    // window.lastUpdatedBlock is set in FactoryUtils.getGeneratorStub
+    var xml = buildBlockFactoryDef(window.lastUpdatedBlock)
+    Blockly.Xml.domToWorkspace(xml, BlockFactory.mainWorkspace);
+  }  
+}
+
 window.jco_factoryBlocksXml = function(){
   var workspace = BlockFactory.mainWorkspace;
   var xmlDom = Blockly.Xml.workspaceToDom(workspace);
@@ -75,32 +85,6 @@ var newNode = function(name, attrs, text){
 var firstStatement = function(block){
   return (block.tagName === 'STATEMENT' || block.tagName === 'XML' || block.tagName === 'VALUE')
 }
-
-//<xml xmlns="http://www.w3.org/1999/xhtml">
-//  <block type="factory_base" id="V2`TYO-edR/}W8uKL)?R" deletable="false" movable="false" x="0" y="0">
-//    <mutation connections="NONE"></mutation>
-//    <field name="NAME">block_type</field>
-//    <field name="INLINE">AUTO</field>
-//    <field name="CONNECTIONS">NONE</field>
-//    <statement name="INPUTS">
-//      <block type="input_value" id="[SFu}aUtb~])w]pr}F5(">
-//        <field name="INPUTNAME">NAME</field>
-//        <field name="ALIGN">LEFT</field>
-//        <statement name="FIELDS">
-//          <block type="field_dropdown" id="-$ShX[%~6Lr21Fu[e_mz">
-//            <mutation options="[&quot;text&quot;,&quot;image&quot;,&quot;text&quot;,&quot;text&quot;]"></mutation>
-//            <field name="FIELDNAME">NAME</field>
-//            <field name="USER0">option</field>
-//            <field name="CPU0">OPTIONNAME</field>
-//            <field name="SRC1">https://www.gstatic.com/codesite/ph/images/star_on.gif</field>
-//            <field name="WIDTH1">15</field>
-//            <field name="HEIGHT1">15</field>
-//            <field name="ALT1">*</field>
-//            <field name="CPU1">OPTIONNAME</field>
-//            <field name="USER2">option</field>
-//            <field name="CPU2">OPTIONNAME</field>
-//            <field name="USER3">option</field>
-//            <field name="CPU3">OPTIONNAME</field>
 
 // JCO: I had to do this function manually since the mutator changes can not be detected by the generator. 
 var field_dropdown_xml2 = function(data, options, FIELDNAME) {
@@ -218,8 +202,6 @@ var buildBlockFactoryDef = function(block){
               dst: {}}
   data.dst.root = newNode('xml')
   data.dst.current = data.dst.root
-  var f0 = function(){}
-  var connections = "NONE"
   // JCO TODO: Assign value to connections according to the following cases:
   if(block.nextConnection){
     if(block.prevConnection){
@@ -276,57 +258,5 @@ var buildBlockFactoryDef = function(block){
     function(data){colour_hue_xml(data, data.src.current.colour_, colour_hue)}) //COLOUR JCO TODO: Convert second value to 0-360
   
   console.log(data.dst.root)
-  
-  // Generate getters for any fields or inputs.
-//  for (var i = 0, input; input = block.inputList[i]; i++) {
-//    for (var j = 0, field; field = input.fieldRow[j]; j++) {
-//      var name = field.name;
-//      if (!name) {
-//        continue;
-//      }
-      //console.log(name)
-//      if (field instanceof Blockly.FieldVariable) {
-//        // Subclass of Blockly.FieldDropdown, must test first.
-//        code.push(makeVar('variable', name) +
-//                  " = Blockly." + language +
-//                  ".variableDB_.getName(block.getFieldValue('" + name +
-//                  "'), Blockly.Variables.NAME_TYPE);");
-//      } else if (field instanceof Blockly.FieldAngle) {
-//        // Subclass of Blockly.FieldTextInput, must test first.
-//        code.push(makeVar('angle', name) +
-//                  " = block.getFieldValue('" + name + "');");
-//      } else if (Blockly.FieldDate && field instanceof Blockly.FieldDate) {
-//        // Blockly.FieldDate may not be compiled into Blockly.
-//        code.push(makeVar('date', name) +
-//                  " = block.getFieldValue('" + name + "');");
-//      } else if (field instanceof Blockly.FieldColour) {
-//        code.push(makeVar('colour', name) +
-//                  " = block.getFieldValue('" + name + "');");
-//      } else if (field instanceof Blockly.FieldCheckbox) {
-//        code.push(makeVar('checkbox', name) +
-//                  " = block.getFieldValue('" + name + "') == 'TRUE';");
-//      } else if (field instanceof Blockly.FieldDropdown) {
-//        code.push(makeVar('dropdown', name) +
-//                  " = block.getFieldValue('" + name + "');");
-//      } else if (field instanceof Blockly.FieldNumber) {
-//        code.push(makeVar('number', name) +
-//                  " = block.getFieldValue('" + name + "');");
-//      } else if (field instanceof Blockly.FieldTextInput) {
-//        code.push(makeVar('text', name) +
-//                  " = block.getFieldValue('" + name + "');");
-//      }
-//    }
-//    var name = input.name;
-//    if (name) {
-//      if (input.type == Blockly.INPUT_VALUE) {
-//        code.push(makeVar('value', name) +
-//                  " = Blockly." + language + ".valueToCode(block, '" + name +
-//                  "', Blockly." + language + ".ORDER_ATOMIC);");
-//      } else if (input.type == Blockly.NEXT_STATEMENT) {
-//        code.push(makeVar('statements', name) +
-//                  " = Blockly." + language + ".statementToCode(block, '" +
-//                  name + "');");
-//      }
-//    }
-//  }
+  return data.dst.root
 }

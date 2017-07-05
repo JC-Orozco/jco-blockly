@@ -78,7 +78,13 @@ FactoryUtils.cleanBlockType = function(blockType) {
  */
 FactoryUtils.getGeneratorStub = function(block, generatorLanguage) {
   // JCO Build factory blocks from block
-  buildBlockFactoryDef(block)
+  //  if (document.getElementById('format').value == 'Manual') {
+  //    BlockFactory.mainWorkspace.clear();
+  //  //var xml = Blockly.Xml.textToDom();
+  //    var xml = buildBlockFactoryDef(block)
+  //    Blockly.Xml.domToWorkspace(xml, BlockFactory.mainWorkspace);
+  //  }
+  window.lastUpdatedBlock = block // For now I am using a global variable to share this value
   
   function makeVar(root, name) {
     name = name.toLowerCase().replace(/\W/g, '_');
