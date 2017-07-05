@@ -166,10 +166,19 @@ var parseFields = function(data){
 var parseInputs = function(data){
   for(let i=0; i<data.src.current.length; i++){
     let input = data.src.current[i]
-    if(input instanceof Blockly.Input){
+    let align = 'LEFT' // This seems to be the default Blockly.ALIGN_LEFT
+    if(input.align){
+      if(input.align === Blockly.ALIGN_CENTRE){
+        align = 'CENTRE'
+      } else if(input.align === Blockly.ALIGN_RIGHT){
+        align = 'RIGHT'
+      }
+    }
+    switch(input.type){
+      case Blockly.INPUT_VALUE:
         input_value_xml(data,
           input.name, // NAME
-          'left', // ALIGN JCO TODO: How to get this value
+          align,
           function(data){ 
             let src = data.src.current
             data.src.current = input.fieldRow
@@ -177,12 +186,30 @@ var parseInputs = function(data){
             data.src.current = src
           }, // FIELDS
           function(data){}) // TYPE JCO TODO: How to get this type block
+        break
+      case Blockly.NEXT_STATEMENT:
+        input_statement_xml(data,
+          input.name, // NAME
+          align,
+          function(data){ 
+            let src = data.src.current
+            data.src.current = input.fieldRow
+            parseFields(data)
+            data.src.current = src
+          }, // FIELDS
+          function(data){}) // TYPE JCO TODO: How to get this type block
+        break
+      case Blockly.DUMMY_INPUT:
+        input_dummy_xml(data,
+          align,
+          function(data){ 
+            let src = data.src.current
+            data.src.current = input.fieldRow
+            parseFields(data)
+            data.src.current = src
+          }) // FIELDS
+        break
     }
-//  } else if(input instanceof B)      case Blockly.NEXT_STATEMENT:
-//        break
-//      default: // Dummy Input
-//        
-//    }
   }
 }
 
@@ -211,6 +238,8 @@ var buildBlockFactoryDef = function(block){
 //  var COLOUR = function(){return block.colour_}
 //  factory_base_xml(data, connections, NAME, INLINE, CONNECTIONS, INPUTS, TOOLTIP, HELPURL, COLOUR)
 
+  let colour_hue = Math.floor(goog.color.hexToHsv(data.src.current.colour_)[0]); // Convert to hue value 0-360 degrees
+  
   factory_base_xml(data, connections,
     block.type, //NAME
     block.inputsInline, //INLINE
@@ -223,7 +252,7 @@ var buildBlockFactoryDef = function(block){
     }, //INPUTS
     function(data){text_xml(data, data.src.current.tooltip)}, //TOOLTIP
     function(data){text_xml(data, data.src.current.helpUrl)}, //HELPURL
-    function(data){colour_hue_xml(data, data.src.current.colour_, data.src.current.colour_)}) //COLOUR JCO TODO: Convert second value to 0-360
+    function(data){colour_hue_xml(data, data.src.current.colour_, colour_hue)}) //COLOUR JCO TODO: Convert second value to 0-360
   
   console.log(data.dst.root)
   
@@ -277,6 +306,6 @@ var buildBlockFactoryDef = function(block){
 //                  " = Blockly." + language + ".statementToCode(block, '" +
 //                  name + "');");
 //      }
-    }
-  }
+//    }
+//  }
 }
