@@ -20,16 +20,16 @@ window.jco_factoryBlocksXml = function(){
   var workspace = BlockFactory.mainWorkspace;
   var xmlDom = Blockly.Xml.workspaceToDom(workspace);
   var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
-  //console.log(xmlText);
-  confirm(xmlText);
+  console.log(xmlText);
+  alert("See console for factoryBlocks xml output");
 }
 
 window.jco_previewBlockXml = function(){
   var workspace = BlockFactory.previewWorkspace;
   var xmlDom = Blockly.Xml.workspaceToDom(workspace);
   var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
-  //console.log(xmlText);
-  alert(xmlText);
+  console.log(xmlText);
+  alert("See console for preview block xml output");
 }
 
 window.jco_toolbarBlocksXml = function(){
@@ -56,35 +56,12 @@ window.jco_toolbarBlocksXml = function(){
     var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
     console.log(xmlText);
   }
-  
-  console.log(convertXmlToCode(input_value_xmlTxt))
 }
 
-var newNode = function(name, attrs, text, ast_node){
+var newNode = function(name, attrs, text){
   var block1
   if(name === 'block'){
-    block_loc[id] = ast_node.loc
-    console.log(id+' '+ast_node.loc.start.line);
-    attrs.id = id;
-    id += 1;
     block1 = goog.dom.createDom('block');
-
-    let comm1
-    let first = true
-    let i = last_comment
-    while(i<comments.length && comments[i].loc.start.line <= ast_node.loc.start.line){
-      if(first){
-        first = false
-        comm1 = goog.dom.createDom("comment")
-        comm1.setAttribute('pinned', 'false')
-        comm1.append(comments[i].value)
-        block1.append(comm1)
-      } else {
-        comm1.append('\n'+comments[i].value)
-      }
-      i += 1
-    }
-    last_comment = i
   } else {
     block1 = goog.dom.createDom(name);      
   }
@@ -94,119 +71,212 @@ var newNode = function(name, attrs, text, ast_node){
   if(text) block1.append(text);
   return block1;
 };
-
-
-//Chained statements
-//<block type="input_value" id="=:Z^4G;c`TDGLme@(-[x">
-//  <field name="INPUTNAME">NAME</field>
-//  <field name="ALIGN">RIGHT</field>
-//  <statement name="FIELDS">
-//    <block type="field_static" id="=g|MM*UR]Gtc+`r+bwbG">
-//      <field name="TEXT">fields</field>
-//      <next>
-//        <block type="field_variable" id="yXph)m9N:~3{?R!=d)B|">
-//          <field name="TEXT">item</field>
-//          <field name="FIELDNAME">NAME</field>
-//        </block>
-//      </next>
-//    </block>
-//  </statement>
-//  <value name="TYPE">
-//    <shadow type="type_null" id="Fvt^^jUh$_tu,c%Dnuw["></shadow>
-//  </value>
-//</block>
-
-var convertXmlToCode = function(xmlTxt){
-  var parser = new DOMParser();
-  var xml = parser.parseFromString(xmlTxt,"text/xml").children[0];
-  var blockType = xml.getAttribute('type');
-  var childList = []
-  var parameters = ''
-  for(let i=0; i<xml.childElementCount; i++){
-    let child = xml.children[i]
-    let name = child.getAttribute('name')
-    childList.push([child.tagName, name])
-    parameters += name+' ,'
-  }
-  parameters = parameters.slice(0,-2)
-  console.log(childList)
-  var code = 'var '+blockType+'_xml('+parameters+') {\n'
-  code += "  var base_block\n"
-  code += "  var block1 = newNode('block', {type: '" + blockType +"'})\n"
-  // JCO TODO: The next code applies for statements, needs expression case.
-  code += `
-  if(firstStatement(prev_block)){
-    base_block = prev_block
-  } else {
-    let nextBlock = newNode('next')
-    prev_block.append(nextBlock)
-    base_block = nextBlock
-  }
-  base_block.append(block1)\n`
-  for(i in childList){
-    let child = childList[i]
-    switch(child[0]){
-      case 'field':
-        code += "  block1.append(newNode('field', {name: '"+ child[1] +"'}, "+ child[1] +"))\n"
-        break;
-      case 'statement':
-      case 'value':
-        code += "  block1.append(newNode('"+ child[0] +"', {name: '"+ child[1] +"'}))\n"
-        code += "  "+ child[1] +"()\n"
-        break;
-    }
-  }
-  code += '  return(base_block)\n' + 
-          '}'
-  return code
-}
-
-var input_value_xmlTxt = `
-<block type="input_value">
-  <field name="INPUTNAME">NAME</field>
-  <field name="ALIGN">RIGHT</field>
-  <statement name="FIELDS">
-    <block type="field_static">
-      <field name="TEXT">fields</field>
-      <next>
-        <block type="field_variable">
-          <field name="TEXT">item</field>
-          <field name="FIELDNAME">NAME</field>
-        </block>
-      </next>
-    </block>
-  </statement>
-  <value name="TYPE">
-    <shadow type="type_null"></shadow>
-  </value>
-</block>`
-
-
-                      
     
 var firstStatement = function(block){
-  return (block.children && block.lastElementChild.tagName === 'STATEMENT')
+  return !(block.children.length>0 && block.lastElementChild.tagName === 'STATEMENT')
 }
 
-// JCO This is an example of a statement block constructor.
-// We need to do an expression block constructor too
-var input_value_xml = function(prev_block, INPUTNAME, ALIGN, FIELDS, TYPE){
-  var base_block
-  var block1 = newNode('block', {type: 'input_value'})
-  if(firstStatement(prev_block)){
-    base_block = prev_block
-  } else {
+//<xml xmlns="http://www.w3.org/1999/xhtml">
+//  <block type="factory_base" id="V2`TYO-edR/}W8uKL)?R" deletable="false" movable="false" x="0" y="0">
+//    <mutation connections="NONE"></mutation>
+//    <field name="NAME">block_type</field>
+//    <field name="INLINE">AUTO</field>
+//    <field name="CONNECTIONS">NONE</field>
+//    <statement name="INPUTS">
+//      <block type="input_value" id="[SFu}aUtb~])w]pr}F5(">
+//        <field name="INPUTNAME">NAME</field>
+//        <field name="ALIGN">LEFT</field>
+//        <statement name="FIELDS">
+//          <block type="field_dropdown" id="-$ShX[%~6Lr21Fu[e_mz">
+//            <mutation options="[&quot;text&quot;,&quot;image&quot;,&quot;text&quot;,&quot;text&quot;]"></mutation>
+//            <field name="FIELDNAME">NAME</field>
+//            <field name="USER0">option</field>
+//            <field name="CPU0">OPTIONNAME</field>
+//            <field name="SRC1">https://www.gstatic.com/codesite/ph/images/star_on.gif</field>
+//            <field name="WIDTH1">15</field>
+//            <field name="HEIGHT1">15</field>
+//            <field name="ALT1">*</field>
+//            <field name="CPU1">OPTIONNAME</field>
+//            <field name="USER2">option</field>
+//            <field name="CPU2">OPTIONNAME</field>
+//            <field name="USER3">option</field>
+//            <field name="CPU3">OPTIONNAME</field>
+
+// JCO: I had to do this function manually since the mutator changes can not be detected by the generator. 
+var field_dropdown_xml2 = function(data, options, FIELDNAME) {
+  var block1 = newNode('block', {type: 'field_dropdown'})
+  var OPTIONS = '['
+  
+  if(!firstStatement(data.dst.current)){
     let nextBlock = newNode('next')
-    prev_block.append(nextBlock)
-    base_block = nextBlock
+    data.dst.current.append(nextBlock)
+    data.dst.current = nextBlock
   }
-  base_block.append(block1)
-  block1.append(newNode('field', {name: 'INPUTNAME'}, INPUTNAME))
-  block1.append(newNode('field', {name: 'ALIGN'}, ALIGN))
-  block1.append(newNode('statement', {name: 'FIELDS'}))
-  FIELDS()
-  block1.append(newNode('value', {name: 'TYPE'}))
-  TYPE()
-  return(base_block)
+  data.dst.current.append(block1)
+  data.dst.current = block1
+  var mutation = newNode('mutation') 
+  block1.append(mutation)
+  block1.append(newNode('field', {name: 'FIELDNAME'}, FIELDNAME))
+  for(let i=0; i<options.length; i++){
+    let option = options[i]
+    if(typeof option[0] === "string"){
+      OPTIONS+='&quot;text&quot;,'
+      block1.append(newNode('field', {name: 'USER'+i}, option[0]))
+    } else {
+      OPTIONS+='&quot;image&quot;,'
+      block1.append(newNode('field', {name: 'SRC'+i}, option[0].src))
+      block1.append(newNode('field', {name: 'WIDTH'+i}, option[0].width))
+      block1.append(newNode('field', {name: 'HEIGHT'+i}, option[0].height))
+      block1.append(newNode('field', {name: 'ALT'+i}, option[0].alt))
+    }
+    block1.append(newNode('field', {name: 'CPU'+i}, option[1]))
+  }
+  OPTIONS = OPTIONS.slice(0,-1) // Drop last comma 
+  OPTIONS += ']'
+  mutation.setAttribute('options', OPTIONS);
+  return 0
 }
 
+var parseFields = function(data){
+  for(let i=0; i<data.src.current.length; i++){
+    let field = data.src.current[i]
+    if(field instanceof Blockly.FieldLabel){
+      field_static_xml(data, field.text_)
+    } else if(field instanceof Blockly.FieldTextInput){
+      field_input_xml(data, field.text_, field.name)
+    } else if(field instanceof Blockly.FieldNumber){
+      field_number_xml(data, field.text_, field.name, field.min_, field.max_, field.presicion_)
+    } else if(field instanceof Blockly.FieldAngle){
+      field_angle_xml(data, field.text_, field.name)
+    } else if(field instanceof Blockly.FieldDropdown){
+      field_dropdown_xml2(data, field.menuGenerator_, field.name)
+    } else if(field instanceof Blockly.FieldCheckbox){
+      field_checkbox_xml(data, field.state_ , field.name)
+    } else if(field instanceof Blockly.FieldColour){
+      field_colour_xml(data, field.colour_ , field.name)
+    } else if(field instanceof Blockly.FieldVariable){
+      field_variable_xml(data, field.text_, field.name)
+    } else if(field instanceof Blockly.FieldImage){
+      field_image_xml(data, field.src_, field.width_, field.height_, field.text_)
+    }
+
+  }
+}
+
+var parseInputs = function(data){
+  for(let i=0; i<data.src.current.length; i++){
+    let input = data.src.current[i]
+    if(input instanceof Blockly.Input){
+        input_value_xml(data,
+          input.name, // NAME
+          'left', // ALIGN JCO TODO: How to get this value
+          function(data){ 
+            let src = data.src.current
+            data.src.current = input.fieldRow
+            parseFields(data)
+            data.src.current = src
+          }, // FIELDS
+          function(data){}) // TYPE JCO TODO: How to get this type block
+    }
+//  } else if(input instanceof B)      case Blockly.NEXT_STATEMENT:
+//        break
+//      default: // Dummy Input
+//        
+//    }
+  }
+}
+
+var buildBlockFactoryDef = function(block){
+  var data = {src: {root: block, current: block},
+              dst: {}}
+  data.dst.root = newNode('xml')
+  data.dst.current = data.dst.root
+  var f0 = function(){}
+  var connections = "NONE"
+  // JCO TODO: Assign value to connections according to the following cases:
+  if(block.nextConnection){
+    if(block.prevConnection){
+    } else {
+    }
+  } else {
+    if(block.prevConnection){ 
+    }    
+  }
+//  var NAME = block.type
+//  var INLINE = block.inputsInline
+//  var CONNECTIONS = block.inputsInlineDefault
+//  var INPUTS = function(){}
+//  var TOOLTIP = function(){return block.tooltip}
+//  var HELPURL = function(){return block.helpUrl}
+//  var COLOUR = function(){return block.colour_}
+//  factory_base_xml(data, connections, NAME, INLINE, CONNECTIONS, INPUTS, TOOLTIP, HELPURL, COLOUR)
+
+  factory_base_xml(data, connections,
+    block.type, //NAME
+    block.inputsInline, //INLINE
+    block.inputsInlineDefault, //CONNECTIONS
+    function(data){
+      let src = data.src.current
+      data.src.current = data.src.current.inputList
+      parseInputs(data)
+      data.src.current = src
+    }, //INPUTS
+    function(data){text_xml(data, data.src.current.tooltip)}, //TOOLTIP
+    function(data){text_xml(data, data.src.current.helpUrl)}, //HELPURL
+    function(data){colour_hue_xml(data, data.src.current.colour_, data.src.current.colour_)}) //COLOUR JCO TODO: Convert second value to 0-360
+  
+  console.log(data.dst.root)
+  
+  // Generate getters for any fields or inputs.
+//  for (var i = 0, input; input = block.inputList[i]; i++) {
+//    for (var j = 0, field; field = input.fieldRow[j]; j++) {
+//      var name = field.name;
+//      if (!name) {
+//        continue;
+//      }
+      //console.log(name)
+//      if (field instanceof Blockly.FieldVariable) {
+//        // Subclass of Blockly.FieldDropdown, must test first.
+//        code.push(makeVar('variable', name) +
+//                  " = Blockly." + language +
+//                  ".variableDB_.getName(block.getFieldValue('" + name +
+//                  "'), Blockly.Variables.NAME_TYPE);");
+//      } else if (field instanceof Blockly.FieldAngle) {
+//        // Subclass of Blockly.FieldTextInput, must test first.
+//        code.push(makeVar('angle', name) +
+//                  " = block.getFieldValue('" + name + "');");
+//      } else if (Blockly.FieldDate && field instanceof Blockly.FieldDate) {
+//        // Blockly.FieldDate may not be compiled into Blockly.
+//        code.push(makeVar('date', name) +
+//                  " = block.getFieldValue('" + name + "');");
+//      } else if (field instanceof Blockly.FieldColour) {
+//        code.push(makeVar('colour', name) +
+//                  " = block.getFieldValue('" + name + "');");
+//      } else if (field instanceof Blockly.FieldCheckbox) {
+//        code.push(makeVar('checkbox', name) +
+//                  " = block.getFieldValue('" + name + "') == 'TRUE';");
+//      } else if (field instanceof Blockly.FieldDropdown) {
+//        code.push(makeVar('dropdown', name) +
+//                  " = block.getFieldValue('" + name + "');");
+//      } else if (field instanceof Blockly.FieldNumber) {
+//        code.push(makeVar('number', name) +
+//                  " = block.getFieldValue('" + name + "');");
+//      } else if (field instanceof Blockly.FieldTextInput) {
+//        code.push(makeVar('text', name) +
+//                  " = block.getFieldValue('" + name + "');");
+//      }
+//    }
+//    var name = input.name;
+//    if (name) {
+//      if (input.type == Blockly.INPUT_VALUE) {
+//        code.push(makeVar('value', name) +
+//                  " = Blockly." + language + ".valueToCode(block, '" + name +
+//                  "', Blockly." + language + ".ORDER_ATOMIC);");
+//      } else if (input.type == Blockly.NEXT_STATEMENT) {
+//        code.push(makeVar('statements', name) +
+//                  " = Blockly." + language + ".statementToCode(block, '" +
+//                  name + "');");
+//      }
+    }
+  }
+}

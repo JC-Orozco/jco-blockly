@@ -77,6 +77,9 @@ FactoryUtils.cleanBlockType = function(blockType) {
  * @return {string} Generator code for multiple blocks.
  */
 FactoryUtils.getGeneratorStub = function(block, generatorLanguage) {
+  // JCO Build factory blocks from block
+  buildBlockFactoryDef(block)
+  
   function makeVar(root, name) {
     name = name.toLowerCase().replace(/\W/g, '_');
     return '  var ' + root + '_' + name;

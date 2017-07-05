@@ -135,14 +135,19 @@ var xml = `
     <mutation colour="#000000"></mutation>
     <field name="HUE">0</field>
   </block>
+
+  <block type="text" deletable="false" movable="false">
+    <field name="TEXT"></field>
+  </block>
+
 </xml>
 `
 
-// JCOA TODO: Fix mutation element.
+// data = {src: {root:null, current:null}, dst: {root:null, current:null}}
 var convertXmlToCode = function(xml){
   var blockType = xml.getAttribute('type');
   var childList = []
-  var parameters = ''
+  var parameters = ', '
   for(let i=0; i<xml.childElementCount; i++){
     let child = xml.children[i]
     let name = ''
@@ -153,23 +158,21 @@ var convertXmlToCode = function(xml){
       name = child.getAttribute('name')
     }
     childList.push([child.tagName, name])
-    parameters += name+' ,'
+    parameters += name+', '
   }
   parameters = parameters.slice(0,-2)
   //console.log(childList)
-  var code = 'var '+blockType+'_xml = function('+parameters+') {\n'
-  code += "  var base_block\n"
+  var code = 'var '+blockType+'_xml = function(data'+parameters+') {\n'
   code += "  var block1 = newNode('block', {type: '" + blockType +"'})\n"
   // JCO TODO: The next code applies for statements, needs expression case.
   code += `
-  if(firstStatement(prev_block)){
-    base_block = prev_block
-  } else {
+  if(!firstStatement(data.dst.current)){
     let nextBlock = newNode('next')
-    prev_block.append(nextBlock)
-    base_block = nextBlock
+    data.dst.current.append(nextBlock)
+    data.dst.current = nextBlock
   }
-  base_block.append(block1)\n`
+  data.dst.current.append(block1)
+  data.dst.current = block1\n`
   for(i in childList){
     let child = childList[i]
     switch(child[0]){
@@ -181,23 +184,25 @@ var convertXmlToCode = function(xml){
         break;
       case 'statement':
       case 'value':
-        code += "  block1.append(newNode('"+ child[0] +"', {name: '"+ child[1] +"'}))\n"
-        code += "  "+ child[1] +"()\n"
+        code += "  block1.append(data.dst.current = newNode('"+ child[0] +"', {name: '"+ child[1] +"'}))\n"
+        code += "  "+ child[1] +"(data)\n"
         break;
     }
   }
-  code += '  return(base_block)\n' + 
-          '}'
+  code += '  return 0\n' + 
+          '}\n'
   return code
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
+  var code = ''
   var parser = new DOMParser();
   var xml1 = parser.parseFromString(xml,"text/xml");
   var xml2 = xml1.children[0].children;
   for(let i=0; i<xml2.length; i++){
-    console.log(convertXmlToCode(xml2[i]))
+    code += convertXmlToCode(xml2[i])
   }
+  console.log(code+'//')
 });
 
 
