@@ -1,5 +1,11 @@
 // Copyright 2017 Juan Carlos Orozco Arena
 
+BlockFactory.manualEdit = function(){
+  BlockFactory.updateBlocksFlag = true // Avoid infinite update loop
+  BlockFactory.updateBlocksFlag2 = true
+  BlockFactory.updateLanguage()
+}
+
 //var jco_init = function(){
 //  document.getElementById('factoryBlocksXml').addEventListener('click',
 //      function() {
@@ -17,13 +23,17 @@
 //
 
 window.jco_updateFactoryBlocks = function(){
-  if (document.getElementById('format').value == 'Manual') {
-    BlockFactory.mainWorkspace.clear();
-    // var xml = Blockly.Xml.textToDom();
-    // window.lastUpdatedBlock is set in FactoryUtils.getGeneratorStub
-    var xml = buildBlockFactoryDef(window.lastUpdatedBlock)
-    Blockly.Xml.domToWorkspace(xml, BlockFactory.mainWorkspace);
-  }  
+  BlockFactory.updateBlocksFlag = true // Avoid infinite update loop
+  BlockFactory.updateBlocksFlag2 = true
+  BlockFactory.updateLanguage()
+  
+//  if (document.getElementById('format').value == 'Manual') {
+//    BlockFactory.mainWorkspace.clear();
+//    // var xml = Blockly.Xml.textToDom();
+//    // window.lastUpdatedBlock is set in FactoryUtils.getGeneratorStub
+//    var xml = buildBlockFactoryDef(window.lastUpdatedBlock)
+//    Blockly.Xml.domToWorkspace(xml, BlockFactory.mainWorkspace);
+//  }  
 }
 
 window.jco_factoryBlocksXml = function(){
@@ -66,6 +76,7 @@ window.jco_toolbarBlocksXml = function(){
     var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
     console.log(xmlText);
   }
+  alert("See console for toolbar blocks xml output");
 }
 
 var newNode = function(name, attrs, text){
