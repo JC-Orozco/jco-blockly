@@ -121,6 +121,131 @@ var field_dropdown_xml2 = function(data, options, FIELDNAME) {
   return 0
 }
 
+// JCO: I had to do this function manually since the mutator changes can not be detected by the generator. 
+var type_group_xml2 = function(data, types) {
+  var block1 = newNode('block', {type: 'type_group'})
+
+  if(!firstStatement(data.dst.current)){
+    let nextBlock = newNode('next')
+    data.dst.current.append(nextBlock)
+    data.dst.current = nextBlock
+  }
+  data.dst.current.append(block1)
+  data.dst.current = block1
+  block1.append(newNode('mutation', {types:types.length}))
+  for(let i=0; i<types.length; i++){
+    let type = types[i]
+    let value = newNode('value', {name:'TYPE'+i})
+    block1.append(value)
+    data.dst.current = value
+    parseType(data, type)
+  }
+  data.dst.current = block1  
+  return 0
+}
+
+//<xml xmlns="http://www.w3.org/1999/xhtml">
+//  <block type="factory_base" id="@M]TSC%Vc,f=XNfsm,:]" x="0" y="0">
+//    <mutation connections="NONE"></mutation>
+//    <field name="NAME">block_type</field>
+//    <field name="INLINE">AUTO</field>
+//    <field name="CONNECTIONS">NONE</field>
+//    <statement name="INPUTS">
+//      <block type="input_value" id="Z`L[c)W,AG6CA!.nO4}t">
+//        <field name="INPUTNAME">NAME2</field>
+//        <field name="ALIGN">LEFT</field>
+//        <statement name="FIELDS">
+//          <block type="field_input" id="7*_1AO9o^1*i0O~8Rux#">
+//            <field name="TEXT">default</field>
+//            <field name="FIELDNAME">NAME3</field>
+//          </block>
+//        </statement>
+//        <value name="TYPE">
+//          <block type="type_group" id="X`wg0~`2k/LSjF*A)0[g">
+//            <mutation types="3"></mutation>
+//            <value name="TYPE0">
+//              <block type="type_boolean" id="6Ig;!bzV3$F3wbeCX0|."></block>
+//            </value>
+//            <value name="TYPE1">
+//              <block type="type_number" id=".8=Fy(X4Y)^AxL=2`|^k"></block>
+//            </value>
+//            <value name="TYPE2">
+//              <block type="type_other" id="xZ#E~g4$mU9EW[x^F*L^">
+//                <field name="TYPE">abc</field>
+//              </block>
+//            </value>
+//          </block>
+//        </value>
+//        <next>
+//          <block type="input_statement" id=",3WU]2u2yr*T=]Uf~df)">
+//            <field name="INPUTNAME">NAME</field>
+//            <field name="ALIGN">LEFT</field>
+//            <statement name="FIELDS">
+//              <block type="field_input" id="J=JfkI!1B_4+R3kcLKPQ">
+//                <field name="TEXT">default</field>
+//                <field name="FIELDNAME">NAME4</field>
+//              </block>
+//            </statement>
+//            <value name="TYPE">
+//              <block type="type_string" id=",0DAA|CKXhak(}mF@+;+"></block>
+//            </value>
+//          </block>
+//        </next>
+//      </block>
+//    </statement>
+//    <value name="TOOLTIP">
+//      <block type="text" id="Z|jYwov.`iDkT8i%JpY4">
+//        <field name="TEXT"></field>
+//      </block>
+//    </value>
+//    <value name="HELPURL">
+//      <block type="text" id="U-I4}8m|9f|z{EG.oM)_">
+//        <field name="TEXT"></field>
+//      </block>
+//    </value>
+//    <value name="COLOUR">
+//      <block type="colour_hue" id="v51i_=]YEpM~yh84R/9[">
+//        <mutation colour="#5b61a5"></mutation>
+//        <field name="HUE">235</field>
+//      </block>
+//    </value>
+//  </block>
+//</xml>
+
+var parseType = function(data, type){
+  switch(type){
+    case "Null":
+      type_null_xml(data)
+      break
+    case "Boolean":
+      type_boolean_xml(data)
+      break
+    case "Number":
+      type_number_xml(data)
+      break
+    case "String":
+      type_string_xml(data)
+      break
+    case "Array":
+      type_list_xml(data)
+      break
+    default:
+      type_other_xml(data, type)
+      break
+  }
+}
+
+var parseTypes = function(data){
+  let curr = data.src.current
+  if(curr.check_){
+    if(curr.check_.length === 1){
+      parseType(data, curr.check_[0])
+    } else if(curr.check_.length > 1 ) {
+      type_group_xml2(data, curr.check_)
+    }
+  }
+}
+
 var parseFields = function(data){
   for(let i=0; i<data.src.current.length; i++){
     let field = data.src.current[i]
@@ -169,7 +294,12 @@ var parseInputs = function(data){
             parseFields(data)
             data.src.current = src
           }, // FIELDS
-          function(data){}) // TYPE JCO TODO: How to get this type block
+          function(data){
+            let src = data.src.current
+            data.src.current = input.connection
+            parseTypes(data)
+            data.src.current = src
+          }) // TYPE
         break
       case Blockly.NEXT_STATEMENT:
         input_statement_xml(data,
@@ -181,7 +311,12 @@ var parseInputs = function(data){
             parseFields(data)
             data.src.current = src
           }, // FIELDS
-          function(data){}) // TYPE JCO TODO: How to get this type block
+          function(data){
+            let src = data.src.current
+            data.src.current = input.connection
+            parseTypes(data)
+            data.src.current = src
+          }) // TYPE
         break
       case Blockly.DUMMY_INPUT:
         input_dummy_xml(data,
