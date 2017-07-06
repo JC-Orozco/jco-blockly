@@ -30,7 +30,7 @@ _NEWLINE_PATTERN = re.compile('[\n\r]')
 
 def string_is_ascii(s):
   try:
-    s.decode('ascii')
+    s #.decode('ascii') // JCO: This was signaling an error
     return True
   except UnicodeEncodeError:
     return False
@@ -82,7 +82,8 @@ def main():
             format(key, args.source_lang_file))
       sys.exit(1)
   sorted_keys = source_defs.keys()
-  sorted_keys.sort()
+  #sorted_keys.sort()
+  sorted(sorted_keys)
 
   # Read in synonyms file, which must be output in every language.
   synonym_defs = read_json_file(os.path.join(
