@@ -1,6 +1,6 @@
 # Blockly [![Build Status]( https://travis-ci.org/google/blockly.svg?branch=master)](https://travis-ci.org/google/blockly)
 
-Juan Carlos Orozco fork of Blockly with improved BlocksFactory. Includes js or JSON to Blocks definition conversion: https://jc-orozco.github.io/jco-block…
+Juan Carlos Orozco fork of Blockly with improved Block Factory. Includes js or JSON to Blocks definition conversion: https://jc-orozco.github.io/jco-block…
 
 Google's Blockly is a web-based, visual programming editor.  Users can drag
 blocks together to build programs.  All code is free and open source.
