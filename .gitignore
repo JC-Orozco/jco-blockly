@@ -1,3 +1,4 @@
+*.exe
 npm-debug.log
 .DS_Store
 .settings
