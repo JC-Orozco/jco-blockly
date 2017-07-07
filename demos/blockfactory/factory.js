@@ -252,7 +252,11 @@ BlockFactory.updatePreview = function() {
     } else {
       rootBlock.setWarningText(null);
     }
-
+  } catch(err) {
+    // JCO TODO: Show error on the UI
+    console.log(err)
+    BlockFactory.updateBlocksFlag = false
+    BlockFactory.updateBlocksFlag2 = false
   } finally {
     Blockly.Blocks = backupBlocks;
   }
