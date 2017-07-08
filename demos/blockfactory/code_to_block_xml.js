@@ -1,26 +1,11 @@
 // Copyright 2017 Juan Carlos Orozco Arena
+// Apache License Version 2.0
 
 BlockFactory.manualEdit = function(){
   BlockFactory.updateBlocksFlag = true // Avoid infinite update loop
   BlockFactory.updateBlocksFlag2 = true
   BlockFactory.updateLanguage()
 }
-
-//var jco_init = function(){
-//  document.getElementById('factoryBlocksXml').addEventListener('click',
-//      function() {
-//        alert("Hello1")
-//        //self.blockLibraryController.saveToBlockLibrary();
-//      });
-//  document.getElementById('previewBlockXml').addEventListener('click',
-//      function() {
-//        alert("Hello2")
-//        //self.blockLibraryController.saveToBlockLibrary();
-//      });  
-//}
-//
-////jco_init();
-//
 
 window.jco_updateFactoryBlocks = function(){
   BlockFactory.updateBlocksFlag = true // Avoid infinite update loop
